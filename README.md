@@ -39,7 +39,7 @@ The project comes with a version of zlib and libpng (with the apng patch). They 
 	- `make install`
 
 ## Usage
-Simply use the default Qt classes like `QImageReader`, `QMovie` etc. and open the apng files just like you would open normal images/animations (like gif files)
+Simply use the default Qt classes like `QImageReader`, `QMovie`, `QImageWriter` etc. and open the apng files just like you would open normal images/animations (like gif files)
 
 **Format Detection:**
 Since the png format is already used by Qt, `*.png` files will **not** use the plugin. To load a png as animated, you can either rename the file to `*.apng`, or set the format explicitly

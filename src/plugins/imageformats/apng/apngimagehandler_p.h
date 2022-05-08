@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QVector>
 class ApngReader;
+class ApngWriter;
 
 class ApngImageHandler : public QImageIOHandler
 {
@@ -18,6 +19,7 @@ public:
 	QByteArray name() const override;
 	bool canRead() const final;
 	bool read(QImage *image) final;
+    bool write(const QImage &image) final;
 	QVariant option(ImageOption option) const final;
 	bool supportsOption(ImageOption option) const final;
 	bool jumpToNextImage() final;
@@ -26,10 +28,10 @@ public:
 	int imageCount() const final;
 	int nextImageDelay() const final;
 	int currentImageNumber() const final;
-
 private:
 	quint32 _index = 0;
 	QScopedPointer<ApngReader> _reader;
+    QScopedPointer<ApngWriter> _writer;
 };
 
 #endif // APNGIMAGEHANDLER_P_H

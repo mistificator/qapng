@@ -1,9 +1,13 @@
+#include <QDebug>
+
 #include "apngimagehandler_p.h"
 #include "apngreader_p.h"
+#include "apngwriter_p.h"
 
 ApngImageHandler::ApngImageHandler() :
 	QImageIOHandler{},
-	_reader{new ApngReader{}}
+    _reader{new ApngReader{}},
+    _writer(new ApngWriter{})
 {}
 
 ApngImageHandler::~ApngImageHandler() = default;
@@ -27,6 +31,15 @@ bool ApngImageHandler::read(QImage *image)
 		return false;
 	*image = _reader->readFrame(_index++);
 	return !image->isNull();
+}
+
+bool ApngImageHandler::write(const QImage &image)
+{
+    if (!_writer->init(device()))
+    {
+        return false;
+    }
+    return _writer->addFrame(image);
 }
 
 QVariant ApngImageHandler::option(QImageIOHandler::ImageOption option) const

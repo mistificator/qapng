@@ -35,6 +35,7 @@ bool ApngReader::init(QIODevice *device)
 	if (_device == device) {
 		if (_device->pos() < _infoOffset) {
 			_allFrames.clear();
+            color_table.clear();
 			_device->seek(_infoOffset);
 		}
 		return _infoOffset > 0;
@@ -48,6 +49,7 @@ bool ApngReader::init(QIODevice *device)
 
 	// clear cached frames
 	_allFrames.clear();
+    color_table.clear();
 
 	//init png structs
 	_png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -79,12 +81,12 @@ bool ApngReader::init(QIODevice *device)
 	return _infoOffset > 0;
 }
 
-ApngReader::ApngFrame ApngReader::readFrame(quint32 index)
+ApngFrame ApngReader::readFrame(quint32 index)
 {
 	return readFrame(static_cast<int>(index));
 }
 
-ApngReader::ApngFrame ApngReader::readFrame(int index)
+ApngFrame ApngReader::readFrame(int index)
 {
 	if(index < _allFrames.size())
 		return _allFrames[index];
@@ -136,6 +138,18 @@ void ApngReader::info_fn(png_structp png_ptr, png_infop info_ptr)
 	png_set_bgr(png_ptr);
 	(void)png_set_interlace_handling(png_ptr);
 	png_read_update_info(png_ptr, info_ptr);
+
+    reader->color_table.clear();
+    int p_count;
+    png_colorp p_palette;
+    png_get_PLTE(png_ptr, info_ptr, & p_palette, & p_count);
+    if (p_count > 0)
+    {
+        for (int i = 0; i < p_count; i++)
+        {
+            reader->color_table << qRgb(p_palette[i].red, p_palette[i].green, p_palette[i].blue);
+        }
+    }
 
 	quint32 width = png_get_image_width(png_ptr, info_ptr);
 	quint32 height = png_get_image_height(png_ptr, info_ptr);
@@ -251,7 +265,14 @@ void ApngReader::frame_end_fn(png_structp png_ptr, png_uint_32 frame_num)
 	else
 		reader->copyOver();
 
-	reader->_allFrames.append({image, frame.delay_num, frame.delay_den});
+    if (!reader->color_table.isEmpty())
+    {
+        reader->_allFrames.append({image.convertToFormat(QImage::Format_Indexed8, reader->color_table), frame.delay_num, frame.delay_den});
+    }
+    else
+    {
+        reader->_allFrames.append({image, frame.delay_num, frame.delay_den});
+    }
 
 	if (frame.dop == PNG_DISPOSE_OP_PREVIOUS)
 		image = temp;
@@ -339,21 +360,4 @@ void ApngReader::blendOver()
 			}
 		}
 	}
-}
-
-
-
-ApngReader::ApngFrame::ApngFrame(const QImage &image, quint16 delay_num, quint16 delay_den) :
-	QImage{image},
-	_delay{static_cast<double>(delay_num) / static_cast<double>(delay_den)}
-{}
-
-double ApngReader::ApngFrame::delay() const
-{
-	return _delay;
-}
-
-int ApngReader::ApngFrame::delayMsec() const
-{
-	return qRound(_delay * 1000);
 }
