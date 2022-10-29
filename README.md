@@ -1,10 +1,6 @@
 # QtApng
 apng image plugin for Qt to support animated PNGs
 
-[![CI build](https://github.com/Skycoder42/QtApng/workflows/CI%20build/badge.svg)](https://github.com/Skycoder42/QtApng/actions?query=workflow%3A%22CI+build%22)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c2a4d6813a07497784580e79475a314e)](https://www.codacy.com/app/Skycoder42/QtApng)
-[![AUR](https://img.shields.io/aur/version/qt5-apng-plugin.svg)](https://aur.archlinux.org/pkgbase/qt5-apng-plugin/)
-
 ## Features
 Enable the usage of apng images with Qt. The plugin adds the apng format as a new format for any Qt application, and thus supports loading of apng images via `QMovie`, `AnimatedImage` and other types.
 
